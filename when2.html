@@ -1,0 +1,72 @@
+<html>
+<head>
+<body>
+
+<script>
+    window.define = function(factory) {
+        try{ delete window.define; } catch(e){ window.define = void 0; } // IE
+        window.when = factory();
+    };
+    window.define.amd = {};
+</script>
+<script type="text/javascript" src="http://m.intravision.dk/ontime/ontimegc2011web.nsf/dojo/1.6.1/dojo.js"></script>
+<script type="text/javascript" src="when.js"></script>
+<script type="text/javascript">
+
+(function() {
+
+	var MB = function(host) {
+		// look at hostname
+		var host = (function(host) {
+			if (!host) return "";
+			if (host.substring(host.length-1, host.length) != "/") return host;
+			return host.substring(0, host.length-1);
+		})(host);
+		
+		this.user = function(user) {
+			return doUser(host, user);
+		}
+	}
+	
+	// define
+	if (!window.MB) {
+		window.MB = function(host) {
+			// returns new MB.js instance
+			return new MB(host);
+		};
+	}
+	
+	// returns a promise for the contents of a ublog feed
+	var doUser = function(host, user) {
+		var deferred = when.defer();
+		dojo.xhrGet({
+			"url": host + "/connections/opensocial/rest/ublog/" + user + "/@all",
+			"handleAs": "json",
+			"load": function(data) {
+				deferred.resolve(data.list);
+			}, 
+			"error": function(err) {
+				deferred.reject(err);
+			}
+		});
+		return deferred.promise;
+	}
+})();
+
+var mb = MB("http://inside.intravision.dk");
+mb.user("@me").then(
+	function success(list) {
+		dojo.forEach(list, function(elem) {
+			console.log(elem);
+		});
+	},
+	function error(err) {
+		document.body.appendChild(document.createTextNode("Error: " + err));
+	}
+);
+
+
+
+</script>
+</body>
+</html>
