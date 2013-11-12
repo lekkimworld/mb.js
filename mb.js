@@ -24,18 +24,6 @@
 			args.push(userid ? [userid] : null);
 			funcs.push(doFeed.bind(this));
 			
-			// add get function
-			this.get = function() {
-				delete this.each;
-				delete this.filter;
-				delete this.get;
-				var result = [];
-				this.each(function(e) {
-					result.push(e);
-				});
-				return result;
-			}
-			
 			// add each function
 			this.each = function(fn) {
 				// save callback
