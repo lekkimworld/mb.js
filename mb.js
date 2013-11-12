@@ -70,7 +70,7 @@
 				// no more functions - callback
 				for (var i=0; i<data.length; i++) {
 					var e = data[i];
-					if ((filter && filter(e)) || !filter) {
+					if ((filter && filter(e)) || (filter && undefined == filter(e)) || !filter) {
 						callback(e);
 					}
 				}

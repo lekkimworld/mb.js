@@ -14,10 +14,10 @@
 <script type="text/javascript">
 
 var mb = MB("http://inside.intravision.dk")
-	.email("stp@intravision.dk")
+	.email("jod@intravision.dk")
 	.feed()
 	.filter(function(e) {
-		return e.summary.indexOf("Connect") != -1;
+		return true;
 	})
 	.each(function(e) {
 		dojo.create("div", {"style": "border: 1px solid black", "innerHTML": e.summary}, dojo.byId("result"), "last");
