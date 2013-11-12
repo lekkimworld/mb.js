@@ -51,6 +51,10 @@
 				return this;
 			}
 			
+			// delete feed and email function
+			delete this.feed;
+			delete this.email;
+			
 			// return
 			return this;
 		}
@@ -100,33 +104,44 @@
 	
 	// userid of a user by email
 	var doUserIdByEmail = function(callback, host, email) {
-		dojo.xhrGet({
-			"url": host + "/profiles/atom/profileService.do?email=" + email,
-			"handleAs": "text",
-			"load": function(data) {	
+		doRequest(host + "/profiles/atom/profileService.do?email=" + email,
+			"text",
+			function(data) {	
 				var idx1 = data.indexOf("<snx:userid>");
 				var idx2 = data.indexOf("</snx:userid>", idx1);
 				var userid = data.substring(idx1+12, idx2);
 				callback(userid);
-			}, 
-			"error": function(err) {
-				throw new Error(err);
 			}
-		});
+		);
 	}
 	
 	// contents of a ublog feed
 	var doFeed = function(callback, host, user) {
-		dojo.xhrGet({
-			"url": host + "/connections/opensocial/rest/ublog/" + (null == user ? "@me" : user) + "/@all",
-			"handleAs": "json",
-			"sync": true,
-			"load": function(data) {
+		doRequest(host + "/connections/opensocial/rest/ublog/" + (null == user ? "@me" : user) + "/@all",
+			"json",
+			function(data) {
 				callback(data.list);
-			}, 
-			"error": function(err) {
-				throw new Error(err);
 			}
-		});
+		);
+	}
+	
+	// function to do request
+	var doRequest = function(url, handleAs, callback) {
+		if (window.dojo) {
+			// use dojo
+			dojo.xhrGet({
+				"url": url,
+				"handleAs": handleAs,
+				"load": callback, 
+				"error": function(err) {
+					throw new Error(err);
+				}
+			});
+		} else if (window.jQuery) {
+			// use jQuery
+			
+		} else {
+			throw new Error("No supported framework found");
+		}
 	}
 })();
