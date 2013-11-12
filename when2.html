@@ -1,7 +1,7 @@
 <html>
 <head>
 <body>
-<div style="font-family: Arial; font-size: 11px" id="result"></div>
+<div style="font-family: Arial; font-size: 11px; width: 50%" id="result"></div>
 <script>
     window.define = function(factory) {
         try{ delete window.define; } catch(e){ window.define = void 0; } // IE
@@ -13,7 +13,7 @@
 <script type="text/javascript" src="mb.js"></script>
 <script type="text/javascript">
 
-var mb = MB("http://inside.intravision.dk")
+MB("http://inside.intravision.dk")
 	.email("jod@intravision.dk")
 	.feed()
 	.filter(function(e) {
@@ -23,7 +23,6 @@ var mb = MB("http://inside.intravision.dk")
 		dojo.create("div", {"style": "border: 1px solid black", "innerHTML": e.summary}, dojo.byId("result"), "last");
 	}
 );
-
 
 </script>
 </body>

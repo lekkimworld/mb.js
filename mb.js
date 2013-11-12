@@ -1,10 +1,12 @@
 (function() {
+	// declarations
 	var funcs = [];
 	var args = [];
-	var callback = null;
-	var filter = null;
+	var fnCallback = null;
+	var fnFilter = null;
 	var host = null;
 	
+	// declare actual MB object
 	var MB = function(hostname) {
 		// look at hostname
 		host = (function(host) {
@@ -25,7 +27,7 @@
 			// add each function
 			this.each = function(fn) {
 				// save callback
-				callback = fn;
+				fnCallback = fn;
 				
 				// initiate
 				doEach();
@@ -33,7 +35,7 @@
 			
 			// add filter function
 			this.filter = function(fn) {
-				filter = fn;
+				fnFilter = fn;
 				return this;
 			}
 			
@@ -70,8 +72,8 @@
 				// no more functions - callback
 				for (var i=0; i<data.length; i++) {
 					var e = data[i];
-					if ((filter && filter(e)) || (filter && undefined == filter(e)) || !filter) {
-						callback(e);
+					if ((fnFilter && fnFilter(e)) || (fnFilter && undefined == fnFilter(e)) || !fnFilter) {
+						fnCallback(e);
 					}
 				}
 			}
