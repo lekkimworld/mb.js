@@ -14,6 +14,11 @@
 <script type="text/javascript">
 
 (function() {
+	var User = function() {
+		this.feed = function() {
+			return doFeed(host, userid);
+		}
+	};
 
 	var MB = function(host) {
 		// look at hostname
@@ -23,8 +28,14 @@
 			return host.substring(0, host.length-1);
 		})(host);
 		
-		this.user = function(user) {
-			return doUser(host, user);
+		this.email = function(email) {
+			doUserIdByEmail(host, email).then(function(userid) {
+				
+			});
+			return new User();
+		},
+		this.feed = function(userid) {
+			return doFeed(host, userid);
 		}
 	}
 	
@@ -36,8 +47,26 @@
 		};
 	}
 	
+	// returns a promise for the userid of a user by email
+	var doUserIdByEmail = function(host, email) {
+		var deferred = when.defer();
+		dojo.xhrGet({
+			"url": host + "/profiles/atom/profileService.do?email=" + email,
+			"handleAs": "text",
+			"load": function(data) {
+				var idx1 = data.indexOf("<snx:userid>");
+				var idx2 = data.indexOf("</snx:userid>", idx1);
+				deferred.resolve(data.substring(idx1+12, idx2));
+			}, 
+			"error": function(err) {
+				deferred.reject(err);
+			}
+		});
+		return deferred.promise;
+	}
+	
 	// returns a promise for the contents of a ublog feed
-	var doUser = function(host, user) {
+	var doFeed = function(host, user) {
 		var deferred = when.defer();
 		dojo.xhrGet({
 			"url": host + "/connections/opensocial/rest/ublog/" + user + "/@all",
@@ -54,7 +83,16 @@
 })();
 
 var mb = MB("http://inside.intravision.dk");
-mb.user("@me").then(
+mb.email("stp@intravision.dk").feed().then(function(data) {
+	console.log(data);
+});
+/*
+mb.email("stp@intravision.dk").then(function(data) {
+	console.log(data);
+});
+*/
+/*
+mb.feed("@me").then(
 	function success(list) {
 		dojo.forEach(list, function(elem) {
 			console.log(elem);
@@ -64,7 +102,7 @@ mb.user("@me").then(
 		document.body.appendChild(document.createTextNode("Error: " + err));
 	}
 );
-
+*/
 
 
 </script>
