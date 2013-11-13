@@ -30,7 +30,7 @@
 				fnCallback = fn;
 				
 				// initiate
-				doEach();
+				doOperations();
 			}
 			
 			// add filter function
@@ -56,14 +56,16 @@
 		};
 	}
 	
-	// execute method
-	var doEach = function() {
+	// execute method (remove functions from array in order and execute them)
+	var doOperations = function() {
 		// get function and compose arguments
 		var f = funcs.shift();
 		var a = args.shift();
 		var aa = [function(data) {
+			// see if there are any more operations to perform
 			if (funcs[0]) {
-				// more functions to call - compose arguments
+				// more functions to call - compose arguments by grabbing the next and 
+				// pushing any return value into the array
 				if (args[0]) {
 					args[0].push(data);
 				} else {
@@ -71,7 +73,7 @@
 				}
 				
 				// recurse
-				doEach();
+				doOperations();
 			} else {
 				// no more functions - callback
 				for (var i=0; i<data.length; i++) {
@@ -90,7 +92,7 @@
 		f.apply(f, aa);	
 	}
 	
-	// userid of a user by email
+	// obtain the userid of a user by email
 	var doUserIdByEmail = function(callback, host, email) {
 		doRequest(host + "/profiles/atom/profileService.do?email=" + email,
 			"text",
@@ -103,7 +105,7 @@
 		);
 	}
 	
-	// contents of a ublog feed
+	// load contents of a ublog feed
 	var doFeed = function(callback, host, user) {
 		doRequest(host + "/connections/opensocial/rest/ublog/" + (null == user ? "@me" : user) + "/@all",
 			"json",
