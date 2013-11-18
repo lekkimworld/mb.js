@@ -20,6 +20,12 @@
 			funcs.push(doUserIdByEmail.bind(this));
 			return this;
 		}
+		this.userid = function(userid, verify) {
+			var a = [userid, verify];
+			args.push(a);
+			funcs.push(doUserIdByUserId.bind(this));
+			return this;
+		}
 		this.feed = function(userid) {
 			args.push(userid ? [userid] : null);
 			funcs.push(doFeed.bind(this));
@@ -42,6 +48,7 @@
 			// delete feed and email function
 			delete this.feed;
 			delete this.email;
+			delete this.userid;
 			
 			// return
 			return this;
@@ -87,6 +94,7 @@
 		if (a) {
 			for (var k=0; k<a.length; k++) aa.push(a[k]);
 		}
+		console.log(f, aa);
 		
 		// execute
 		f.apply(f, aa);	
@@ -101,6 +109,27 @@
 				var idx2 = data.indexOf("</snx:userid>", idx1);
 				var userid = data.substring(idx1+12, idx2);
 				callback(userid);
+			}
+		);
+	}
+	
+	// obtain the userid of a user by userid
+	var doUserIdByUserId = function(callback, host, userid, verify) {
+		if (!userid) throw new Error("You must supply a user id");
+		if (!verify) {
+			callback(userid);
+			return;
+		}
+		doRequest(host + "/profiles/atom/profileService.do?userid=" + userid,
+			"text",
+			function(data) {
+				if (data.indexOf("<error xmlns=\"http://www.ibm.com/xmlns/prod/sn\">") != -1) {
+					// error
+					throw new Error("Unable to verify user id <" + userid + ">");
+				} else {
+					// ok
+					callback(userid);
+				}
 			}
 		);
 	}
