@@ -180,14 +180,20 @@
 	var doRequest = function(url, handleAs, callback) {
 		if (window.dojo) {
 			// use dojo
-			dojo.xhrGet({
+			var args = {
 				"url": url,
 				"handleAs": handleAs,
 				"load": callback, 
 				"error": function(err) {
 					throw new Error(err);
 				}
-			});
+			};
+			if (handleAs && handleAs == "json") {
+				args.headers = {
+					"Content-Type": "application/json"
+				}
+			}
+			dojo.xhrGet(args);
 		} else if (window.jQuery) {
 			// use jQuery
 			
