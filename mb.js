@@ -10,7 +10,7 @@
 	var MB = function(hostname) {
 		// look at hostname
 		host = (function(host) {
-			if (!host) return "";
+			if (!host) return document.location.protocol + "//" + document.location.host;
 			if (host.substring(host.length-1, host.length) != "/") return host;
 			return host.substring(0, host.length-1);
 		})(hostname);
@@ -26,6 +26,12 @@
 			funcs.push(doUserIdByUserId.bind(this));
 			return this;
 		}
+		this.userkey = function(key) {
+			var a = [key];
+			args.push(a);
+			funcs.push(doUserIdByUserKey.bind(this));
+			return this;
+		}
 		this.feed = function(userid) {
 			args.push(userid ? [userid] : null);
 			funcs.push(doFeed.bind(this));
@@ -33,7 +39,9 @@
 			// add each function
 			this.each = function(fn) {
 				// save callback
-				fnCallback = fn;
+				fnCallback = fn ? fn : function(e) {
+					console.log(e);
+				};
 				
 				// initiate
 				doOperations();
@@ -49,6 +57,7 @@
 			delete this.feed;
 			delete this.email;
 			delete this.userid;
+			delete this.userkey;
 			
 			// return
 			return this;
@@ -104,16 +113,21 @@
 	var doUserIdByEmail = function(callback, host, email) {
 		doRequest(host + "/profiles/atom/profileService.do?email=" + email,
 			"text",
-			function(data) {	
-				var idx1 = data.indexOf("<snx:userid>");
-				var idx2 = data.indexOf("</snx:userid>", idx1);
-				var userid = data.substring(idx1+12, idx2);
-				callback(userid);
+			function(data) {
+				if (!data || data.indexOf("<error xmlns=\"http://www.ibm.com/xmlns/prod/sn\">") != -1) {
+					// error
+					throw new Error("Unable to translate email <" + email + "> to userid");
+				} else {	
+					var idx1 = data.indexOf("<snx:userid>");
+					var idx2 = data.indexOf("</snx:userid>", idx1);
+					var userid = data.substring(idx1+12, idx2);
+					callback(userid);
+				}
 			}
 		);
 	}
 	
-	// obtain the userid of a user by userid
+	// obtain the userid of a user by id
 	var doUserIdByUserId = function(callback, host, userid, verify) {
 		if (!userid) throw new Error("You must supply a user id");
 		if (!verify) {
@@ -123,11 +137,29 @@
 		doRequest(host + "/profiles/atom/profileService.do?userid=" + userid,
 			"text",
 			function(data) {
-				if (data.indexOf("<error xmlns=\"http://www.ibm.com/xmlns/prod/sn\">") != -1) {
+				if (!data || data.indexOf("<error xmlns=\"http://www.ibm.com/xmlns/prod/sn\">") != -1) {
 					// error
-					throw new Error("Unable to verify user id <" + userid + ">");
+					throw new Error("Unable to verify <" + arg + ">");
 				} else {
 					// ok
+					callback(userid);
+				}
+			}
+		);
+	}
+	var doUserIdByUserKey = function(callback, host, key) {
+		if (!key) throw new Error("You must supply a key");
+		doRequest(host + "/profiles/atom/profileService.do?key=" + key,
+			"text",
+			function(data) {
+				if (!data || data.indexOf("<error xmlns=\"http://www.ibm.com/xmlns/prod/sn\">") != -1) {
+					// error
+					throw new Error("Unable to translate key <" + key + "> to userid");
+				} else {
+					// ok - parse out userid
+					var idx1 = data.indexOf("<snx:userid>");
+					var idx2 = data.indexOf("</snx:userid>", idx1);
+					var userid = data.substring(idx1+12, idx2);
 					callback(userid);
 				}
 			}

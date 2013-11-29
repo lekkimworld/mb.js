@@ -1,0 +1,13 @@
+<iw:iwidget xmlns:iw="http://www.ibm.com/xmlns/prod/iWidget" id="com.lekkimworld.connections.mb" 
+	supportedModes="view" mode="view" lang="en" iScope="com.lekkimworld.connections.mb.Widget" 
+	allowInstanceContent="true">
+<iw:resource uri="mb.js"/>
+<iw:resource uri="mbwidget.js"/>
+<iw:content mode="view">
+<![CDATA[
+<div id="_IWID_widgetContent">
+ Loading...
+ </div>
+]]>
+</iw:content>
+</iw:iwidget>
